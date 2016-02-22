@@ -9,8 +9,8 @@ There will then be saved to the database after which the user can link there acc
 
 ![authenticated](screenshots/authenticated.png)
 
-Some of the features are only available to non-sandbox clients. 
-In deafult sandbox mode only data from authenticated user can be fetched.
+Some of the features are only available to non-sandbox clients.
+By default, sandbox mode will only return the last 20 media items from authenticated users. 
 
 To display the instagram media the following methods are avalabel:
 ```php
