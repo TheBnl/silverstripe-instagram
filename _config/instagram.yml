@@ -1,0 +1,7 @@
+---
+Name: instagram
+After: 'framework/*', 'cms/*'
+---
+SiteConfig:
+  extensions:
+    - InstagramAuthenticator

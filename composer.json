@@ -1,0 +1,17 @@
+{
+	"name": "bramdeleeuw/silverstripe-instagram",
+	"description": "Link your instagram account to you SilverStripe site and query the instagram api",
+	"type": "silverstripe-module",
+	"keywords": ["silverstripe", "social media", "instagram", "api", "media"],
+	"license": "BSD-3-Clause",
+	"authors": [{
+		"name": "Bram de Leeuw",
+		"homepage": "http://broarm.nl"
+	}],
+	"require": {
+		"silverstripe/framework": "^3.1"
+	},
+	"extra": {
+		"installer-name": "instagram"
+	}
+}

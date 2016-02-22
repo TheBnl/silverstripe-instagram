@@ -1,0 +1,7 @@
+---
+Name: instagramAuthenticationRoutes
+After: framework/routes#coreroutes
+---
+Director:
+  rules:
+    'instagram//$Action': 'InstagramAuthenticator_Controller'
