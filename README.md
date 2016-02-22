@@ -12,7 +12,7 @@ There will then be saved to the database after which the user can link there acc
 Some of the features are only available to non-sandbox clients.
 By default, sandbox mode will only return the last 20 media items from authenticated users. 
 
-To display the instagram media the following methods are avalabel:
+To display the instagram media the following methods are available:
 ```php
 $instagram = new Instagram();
 
