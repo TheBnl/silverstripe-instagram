@@ -40,10 +40,10 @@
 				<div class="share-care-preview">
 						<div class="message">
 								<p>
-										<img src="$InstagramProfilePicture" alt="$InstagramUserName">
+										<img src="$CurrentMember.InstagramProfilePicture" alt="$CurrentMember.InstagramUserName">
 								</p>
-								<p class="share-care-title"><strong>$InstagramUserName</strong></p>
-								<p class="share-care-description">$InstagramFullName</p>
+								<p class="share-care-title"><strong>$CurrentMember.InstagramUserName</strong></p>
+								<p class="share-care-description">$CurrentMember.InstagramFullName</p>
 						</div>
 				</div>
 		</div>

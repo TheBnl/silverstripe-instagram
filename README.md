@@ -14,23 +14,21 @@ By default, sandbox mode will only return the last 20 media items from authentic
 
 To display the instagram media the following methods are available:
 ```php
-$instagram = new Instagram();
-
 /**
  * Get the latest media form the authenticated user
  * $limit defaults to 8
  */
-$instagram->getCurrentUserMedia($limit);
+Instagram::getCurrentUserMedia($limit);
 
 /**
  * Get user media by given user name
  * In sandbox mode only authenticated user media will be shown, a non authenticated user name would return an empty array
  */
-$instagram->getUserMedia($userName, $limit);
+Instagram::getUserMedia($userName, $limit);
 
 /**
  * Get media by tag name
  * In sandbox mode only authenticated user media will be shown, so use tags that are being used by the authenticated user
  */
-$instagram->getTaggedMedia($tagName, $limit);
+Instagram::getTaggedMedia($tagName, $limit);
 ```

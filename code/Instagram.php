@@ -21,14 +21,23 @@ class Instagram
 	/**
 	 * Set up a connection with the Instagram API
 	 * @param int $limit
+	 * @param Member $member
 	 * @param string $search
 	 * @return RestfulService
 	 */
-	public function connection($limit = self::LIMIT, $search = null) {
+	private static function connection($limit = self::LIMIT, Member $member = null, $search = null) {
 		$connection = new RestfulService(self::API_URL);
-		$siteConfig = SiteConfig::current_site_config();
+		//$siteConfig = SiteConfig::current_site_config();
+		if (!$member) $member = Member::get()->filter(array('InstagramAccessToken:not' => 'NULL'));
+		if ($member->count() && $member->first()->exists()) {
+			$member = $member->first();
+		} else {
+			user_error('No members yet authenticated with Instagramm');
+			return false;
+		}
+
 		$query = array(
-				'access_token' => $siteConfig->getAccessToken(),
+				'access_token' => $member->getAccessToken(),
 				'count' => $limit
 		);
 
@@ -44,8 +53,8 @@ class Instagram
 	 * @param int $limit
 	 * @return ArrayList
 	 */
-	public function getCurrentUserMedia($limit = self::LIMIT) {
-		$connection = $this->connection()->request("users/self/media/recent/");
+	public static function getCurrentUserMedia($limit = self::LIMIT) {
+		$connection = self::connection($limit)->request("users/self/media/recent/");
 		$body = json_decode($connection->getBody(), true);
 		return new ArrayList($body["data"]);
 	}
@@ -57,9 +66,9 @@ class Instagram
 	 * @param int $limit
 	 * @return ArrayList
 	 */
-	public function getUserMedia($userName, $limit = self::LIMIT) {
-		$userID = $this->getUserID($userName);
-		$connection = $this->connection()->request("users/$userID/media/recent/");
+	public static function getUserMedia($userName, $limit = self::LIMIT) {
+		$userID = self::getUserID($userName);
+		$connection = self::connection($limit)->request("users/$userID/media/recent/");
 		$body = json_decode($connection->getBody(), true);
 		return new ArrayList($body["data"]);
 	}
@@ -71,8 +80,8 @@ class Instagram
 	 * @param int $limit
 	 * @return ArrayList
 	 */
-	public function getTaggedMedia($tagName, $limit = self::LIMIT) {
-		$connection = $this->connection()->request("tags/$tagName/media/recent/");
+	public static function getTaggedMedia($tagName, $limit = self::LIMIT) {
+		$connection = self::connection($limit)->request("tags/$tagName/media/recent/");
 		$body = json_decode($connection->getBody(), true);
 		return new ArrayList($body["data"]);
 	}
@@ -81,12 +90,21 @@ class Instagram
 	 * Get the User ID from the given user name
 	 * In sandbox mode this feature will only work with authorized accounts
 	 * @param $userName
-	 * @param int $limit
 	 * @return ArrayList
 	 */
-	public function getUserID($userName, $limit = self::LIMIT) {
-		$connection = $this->connection($limit, $userName)->request("users/search/");
+	public static function getUserID($userName) {
+		$member = Member::get()->find('InstagramUserName', $userName);
+		return $member->getField('InstagramID');
+		/**
+		$connection = self::connection($limit, $member, $userName)->request("users/search/");
 		$body = json_decode($connection->getBody(), true);
+
+		echo "<pre>";
+		print_r($body);
+		echo "</pre>";
+		exit();
+
 		return new ArrayList($body["data"]);
+		 */
 	}
 }

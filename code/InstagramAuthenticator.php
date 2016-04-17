@@ -39,22 +39,21 @@ class InstagramAuthenticator extends DataExtension {
 	 * @var array
 	 */
 	private static $db = array(
-			"AccessToken" => "Varchar(255)",
+			//"AccessToken" => "Varchar(255)",
 			"ClientID" => "Varchar(255)",
 			"ClientSecret" => "Varchar(255)",
-			"InstagramID" => "Varchar(255)",
-			"InstagramUserName" => "Varchar(255)",
-			"InstagramProfilePicture" => "Varchar(255)",
-			"InstagramFullName" => "Varchar(255)",
+			//"InstagramID" => "Varchar(255)",
+			//"InstagramUserName" => "Varchar(255)",
+			//"InstagramProfilePicture" => "Varchar(255)",
+			//"InstagramFullName" => "Varchar(255)",
 	);
 
 	public function updateCMSFields(FieldList $fields) {
+		$tab = "Root.Instagram";
 		$clientID = Config::inst()->get("InstagramAuthenticator", "client_id");
 		$clientSecret = Config::inst()->get("InstagramAuthenticator", "client_secret");
 		// FIXME: how to get url params.. in something els than a controller..
 		$authenticated = false;//$this->getRequest()->getVar('authenticated');
-		$fields->removeByName(array("AccessToken"));
-
 
 		/**
 		 * FIXME: handle authentication failures and successes by giving proper feedback
@@ -64,7 +63,7 @@ class InstagramAuthenticator extends DataExtension {
 					"<div class='message good'>
 						<p>You are successfully authenticated!</p>
 					</div>");
-			$fields->addFieldToTab("Root.Instagram", $authenticatedNotice);
+			$fields->addFieldToTab($tab, $authenticatedNotice);
 		}
 
 		/**
@@ -75,7 +74,7 @@ class InstagramAuthenticator extends DataExtension {
 					"<div class='message notice'>
 						<p>Clients can be managed <a href='https://www.instagram.com/developer/clients/manage/' title='Manage Clients'>here</a></p>
 					</div>");
-			$fields->addFieldToTab("Root.Instagram", $clientManagerNotice);
+			$fields->addFieldToTab($tab, $clientManagerNotice);
 		}
 
 		/**
@@ -83,7 +82,7 @@ class InstagramAuthenticator extends DataExtension {
 		 */
 		if (!$clientID) {
 			$clientIDTextField = new TextField("ClientID", "Instagram Client ID");
-			$fields->addFieldToTab("Root.Instagram", $clientIDTextField);
+			$fields->addFieldToTab($tab, $clientIDTextField);
 		}
 
 		/**
@@ -91,16 +90,17 @@ class InstagramAuthenticator extends DataExtension {
 		 */
 		if (!$clientSecret) {
 			$clientSecretTextField = new TextField("ClientSecret", "Instagram Secret");
-			$fields->addFieldToTab("Root.Instagram", $clientSecretTextField);
+			$fields->addFieldToTab($tab, $clientSecretTextField);
 		}
 
-		/**
-		 * If no access token is saved in the database, show a button with the authentication url
-		 * TODO: button needs to trigger a window.open event with the instagram authentication url
-		 */
-		if ($this->owner->getField("AccessToken") == null) {
-			$authenticateButton = new LiteralField("InstagramAuthentication",
-					"<button type='submit'
+		if ($member = Member::currentUser()) {
+			/**
+			 * If no access token is saved in the database, show a button with the authentication url
+			 * TODO: button needs to trigger a window.open event with the instagram authentication url
+			 */
+			if ($member->getField("InstagramAccessToken") == null) {
+				$authenticateButton = new LiteralField("InstagramAuthentication",
+						"<button type='submit'
 								 name='Instagram_Authentication_Button'
 								 value='Authenticate Instagram'
 								 class='action ss-ui-action-constructive ss-ui-button ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-primary'
@@ -110,21 +110,21 @@ class InstagramAuthenticator extends DataExtension {
 								 onclick='window.open(\"{$this->getAuthenticationURL()}\",\"Authenticate Instagram\",\"width = 600,height = 516\")'>
 							<span class='ui-button-text'>Authenticate Instagram</span>
 					</button>");
-			$fields->addFieldToTab("Root.Instagram", $authenticateButton);
-		}
+				$fields->addFieldToTab("Root.Instagram", $authenticateButton);
+			}
 
-		/**
-		 * Show the account info of the logged in user
-		 * TODO: make the template and render
-		 * TODO: add a revoke access button
-		 * TODO: add a get new access token button
-		 */
-		if ($this->owner->getField("AccessToken") != null) {
-			$accountInformationField = new LiteralField('InstagramAccountInformation', $this->owner->RenderWith('InstagramAccountInformation'));
-			$fields->addFieldToTab("Root.Instagram", $accountInformationField);
+			/**
+			 * Show the account info of the logged in user
+			 * TODO: make the template and render
+			 * TODO: add a revoke access button
+			 * TODO: add a get new access token button
+			 */
+			else {
+				$accountInformationField = new LiteralField('InstagramAccountInformation', $this->owner->RenderWith('InstagramAccountInformation'));
+				$fields->addFieldToTab($tab, $accountInformationField);
 
-			$revokeButton = new LiteralField("InstagramAuthentication",
-					"<button type='submit'
+				$revokeButton = new LiteralField("InstagramAuthentication",
+						"<button type='submit'
 								 name='Instagram_Revoke_Button'
 								 value='Revoke Access'
 								 class='action ss-ui-button ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only'
@@ -133,8 +133,16 @@ class InstagramAuthenticator extends DataExtension {
 								 aria-disabled='false'>
 							<span class='ui-button-text'>Revoke Access</span>
 					</button>");
-			$fields->addFieldToTab("Root.Instagram", $revokeButton);
+				$fields->addFieldToTab("Root.Instagram", $revokeButton);
+			}
+		} else {
+			$invalidMemberNotice = new LiteralField("InvalidMemberNotice",
+					"<div class='message error'>
+						<p>You need to be logged in as a valid member</p>
+					</div>");
+			$fields->addFieldToTab($tab, $invalidMemberNotice);
 		}
+
 	}
 
 	/**
@@ -171,14 +179,6 @@ class InstagramAuthenticator extends DataExtension {
 	 */
 	public function getAuthenticationURL() {
 		return self::API_OAUTH_URL . "?client_id=" . self::getClientID() . "&redirect_uri=" . urlencode(self::getRedirectURL()) . "&response_type=code&scope=public_content";
-	}
-
-	/**
-	 * Return the access token
-	 * @return string
-	 */
-	public function getAccessToken() {
-		return $this->owner->getField("AccessToken");
 	}
 
 }
@@ -233,13 +233,13 @@ class InstagramAuthenticator_Controller extends ContentController {
 			if(array_key_exists("error_message", $response)) {
 				$this->redirect(Director::absoluteURL("admin/settings/?authenticated=false&error_description=$error_description#Root_Instagram"));
 			} else {
-				$siteConfig = SiteConfig::current_site_config();
-				$siteConfig->AccessToken = $response->access_token;
-				$siteConfig->InstagramID = $response->user->id;
-				$siteConfig->InstagramUserName = $response->user->username;
-				$siteConfig->InstagramProfilePicture = $response->user->profile_picture;
-				$siteConfig->InstagramFullName = $response->user->full_name;
-				$siteConfig->write();
+				$member = Member::currentUser();
+				$member->setField('InstagramAccessToken', $response->access_token);
+				$member->setField('InstagramID', $response->user->id);
+				$member->setField('InstagramUserName', $response->user->username);
+				$member->setField('InstagramProfilePicture', $response->user->profile_picture);
+				$member->setField('InstagramFullName', $response->user->full_name);
+				$member->write();
 
 				$this->redirect(Director::absoluteURL('admin/settings/?authenticated=true#Root_Instagram'));
 			}

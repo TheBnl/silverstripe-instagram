@@ -5,3 +5,6 @@ After: 'framework/*', 'cms/*'
 SiteConfig:
   extensions:
     - InstagramAuthenticator
+Member:
+  extensions:
+    - InstagramMemberExtension
