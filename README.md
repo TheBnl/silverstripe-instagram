@@ -2,8 +2,8 @@
 
 **Still in development**
 
-Add instagram api support to you website! Creates a tab in the SiteConfig where content authors can add a client ID and Secret.
-There will then be saved to the database after which the user can link there account trough a simple authentication button.
+Add instagram api support to you website! Creates a tab in on the Member section where content authors can authenticate with your Instagram app.
+The module contains a task that fetches the authenticated member's images form instagram.
 
 ![authenticate](screenshots/authenticate.png)
 

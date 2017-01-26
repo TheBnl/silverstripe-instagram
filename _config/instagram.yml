@@ -4,7 +4,16 @@ After: 'framework/*', 'cms/*'
 ---
 SiteConfig:
   extensions:
-    - InstagramAuthenticator
+    - Broarm\Silverstripe\Instagram\InstagramAuthenticator
+
 Member:
   extensions:
-    - InstagramMemberExtension
+    - Broarm\Silverstripe\Instagram\MemberExtension
+
+---
+Name: instagram_routes
+After: framework/routes#coreroutes
+---
+Director:
+  rules:
+    'instagram//$Action': Broarm\Silverstripe\Instagram\CallbackController
