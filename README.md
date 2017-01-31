@@ -12,23 +12,25 @@ The module contains a task that fetches the authenticated member's images form i
 Some of the features are only available to non-sandbox clients.
 By default, sandbox mode will only return the last 20 media items from authenticated users. 
 
-To display the instagram media the following methods are available:
+The default behaviour runs a task that checks media from authenticated users. This data gets stored in `InstagramMediaObject`'s. 
+The simplest way to get started would by by running the task either by cron or by hand and querying the `InstagramMediaObject`.
+
+But you could also create your own tasks or, request the api directly, with the following methods.
+
 ```php
-/**
- * Get the latest media form the authenticated user
- * $limit defaults to 8
- */
-Instagram::getCurrentUserMedia($limit);
-
-/**
- * Get user media by given user name
- * In sandbox mode only authenticated user media will be shown, a non authenticated user name would return an empty array
- */
-Instagram::getUserMedia($userName, $limit);
-
-/**
- * Get media by tag name
- * In sandbox mode only authenticated user media will be shown, so use tags that are being used by the authenticated user
- */
-Instagram::getTaggedMedia($tagName, $limit);
+$instagram = Instagram::create();
+ 
+// All the following request go trough this basic method.
+// You could do most of the available API requests with this method. 
+$instagram->get($node = null, $limit = null);
+ 
+// Get the media of the current (authentiated) user
+$instagram->getCurrentUserMedia($limit = null);
+ 
+// Get the media of a given "Silverstripe" member, only works if the member is authenticated
+// See ImportMediaTasks.php for a implementation 
+$instagram->getMemberMedia(Member $member, $limit = null)
+ 
+// Get media by tag from the pool of authenticated members
+$instagram->getTaggedMedia($tagName, $limit = null)
 ```
