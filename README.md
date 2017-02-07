@@ -1,7 +1,5 @@
 # Silverstripe Instagram
 
-**Still in development**
-
 Add instagram api support to you website! Creates a tab in on the Member section where content authors can authenticate with your Instagram app.
 The module contains a task that fetches the authenticated member's images form instagram.
 
