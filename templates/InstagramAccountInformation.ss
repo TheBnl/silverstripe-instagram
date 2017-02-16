@@ -31,10 +31,10 @@
 				<div class="instagram-account-field__preview">
 						<div class="message">
 								<p>
-										<img src="$CurrentMember.InstagramProfilePicture" alt="$CurrentMember.InstagramUserName">
+										<img src="$InstagramProfilePicture" alt="$InstagramUserName">
 								</p>
-								<p class="instagram-account-field__title"><strong>$CurrentMember.InstagramUserName</strong></p>
-								<p class="instagram-account-field__description">$CurrentMember.InstagramFullName</p>
+								<p class="instagram-account-field__title"><strong>$InstagramUserName</strong></p>
+								<p class="instagram-account-field__description">$InstagramFullName</p>
 						</div>
 				</div>
 		</div>
