@@ -79,7 +79,8 @@ class InstagramMediaObject extends Image {
 
     public function onBeforeWrite()
     {
-        $this->setField('Title', $this->InstagramCaptionText);
+        $this->Title = $this->InstagramCaptionText;
+        $this->Created = date('Y-m-d', $this->InstagramCreated);
 
         // Download and set the image first time it's downloaded
         if (!$this->exists()) {

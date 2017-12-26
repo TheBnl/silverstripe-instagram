@@ -74,8 +74,6 @@ class ImportMediaTasks extends BuildTask
     public function run($request)
     {
         $this->instagram = new Instagram();
-        echo "<pre>";
-
         foreach (Instagram::getAuthenticatedMembers() as $member) {
             if ($media = $this->instagram->getMemberMedia($member)) {
                 foreach ($media as $mediaObject) {
@@ -85,7 +83,7 @@ class ImportMediaTasks extends BuildTask
             }
         }
         
-        echo "</pre>";
+        exit('Done');
     }
 
 
