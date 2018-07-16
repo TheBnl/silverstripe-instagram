@@ -68,7 +68,11 @@ class Instagram extends Object
     {
         $connection = self::connection($limit)->request($node);
         $body = json_decode($connection->getBody(), true);
-        return new ArrayList($body["data"]);
+        if ($body = json_decode($connection->getBody(), true)) {
+            return new ArrayList($body["data"]);
+        }
+
+        return new ArrayList();
     }
 
 
