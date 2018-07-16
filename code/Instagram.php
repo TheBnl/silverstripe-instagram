@@ -27,14 +27,15 @@ class Instagram extends Object
      *
      * @param int $limit
      * @param string $search
+     * @param string $token
      * @return RestfulService
      */
-    private static function connection($limit = null, $search = null)
+    private static function connection($limit = null, $search = null, $token = null)
     {
         $connection = new RestfulService(self::API_URL);
 
         $query = array(
-            'access_token' => Instagram::getAuthenticatedMembers()->first()->getField('InstagramAccessToken'),
+            'access_token' => $token ? $token : Instagram::getAuthenticatedMembers()->first()->getField('InstagramAccessToken'),
             'count' => $limit ? $limit : self::LIMIT
         );
 
@@ -62,11 +63,12 @@ class Instagram extends Object
      *
      * @param null $node
      * @param int $limit
+     * @param string $token
      * @return ArrayList
      */
-    public function get($node = null, $limit = null)
+    public function get($node = null, $limit = null, $token = null)
     {
-        $connection = self::connection($limit)->request($node); 
+        $connection = self::connection($limit, null, $token)->request($node);
         if (($body = json_decode($connection->getBody(), true)) && isset($body["data"]) && !empty($body["data"])) {
             return new ArrayList($body["data"]);
         }
@@ -80,11 +82,12 @@ class Instagram extends Object
      * This feature will work in sandbox mode, it will showcase the latest 20 media items
      *
      * @param int $limit
+     * @param string $token
      * @return ArrayList
      */
-    public function getCurrentUserMedia($limit = null)
+    public function getCurrentUserMedia($limit = null, $token = null)
     {
-        return $this->get('users/self/media/recent/', $limit);
+        return $this->get('users/self/media/recent/', $limit, $token);
     }
 
 
@@ -94,11 +97,12 @@ class Instagram extends Object
      *
      * @param Member|MemberExtension $member
      * @param int $limit
+     * @param string $token
      * @return ArrayList
      */
-    public function getMemberMedia(Member $member, $limit = null)
+    public function getMemberMedia(Member $member, $limit = null, $token = null)
     {
-        return $this->get("users/{$member->InstagramID}/media/recent/", $limit);
+        return $this->get("users/{$member->InstagramID}/media/recent/", $limit, $token);
     }
 
 
@@ -108,10 +112,11 @@ class Instagram extends Object
      *
      * @param $tagName
      * @param null $limit
+     * @param string $token
      * @return ArrayList
      */
-    public function getTaggedMedia($tagName, $limit = null)
+    public function getTaggedMedia($tagName, $limit = null, $token = null)
     {
-        return $this->get("tags/$tagName/media/recent/", $limit);
+        return $this->get("tags/$tagName/media/recent/", $limit, $token);
     }
 }

@@ -75,7 +75,7 @@ class ImportMediaTasks extends BuildTask
     {
         $this->instagram = new Instagram();
         foreach (Instagram::getAuthenticatedMembers() as $member) {
-            if ($media = $this->instagram->getMemberMedia($member)) {
+            if ($media = $this->instagram->getMemberMedia($member, null, $member->InstagramAccessToken)) {
                 foreach ($media as $mediaObject) {
                     $obj = self::handleObject($mediaObject->toMap());
                     echo "Created instagram media obj with ID {$obj->ID} from source {$obj->InstagramID} \n\n";
