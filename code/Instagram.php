@@ -67,7 +67,7 @@ class Instagram extends Object
     public function get($node = null, $limit = null)
     {
         $connection = self::connection($limit)->request($node); 
-        if ($body = json_decode($connection->getBody(), true)) {
+        if (($body = json_decode($connection->getBody(), true)) && isset($body["data"]) && !empty($body["data"])) {
             return new ArrayList($body["data"]);
         }
 
