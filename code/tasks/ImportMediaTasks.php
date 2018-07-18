@@ -74,7 +74,7 @@ class ImportMediaTasks extends BuildTask
     public function run($request)
     {
         $this->instagram = new Instagram();
-        if (!Director::is_cli()) echo "<pre>";
+        if (!\Director::is_cli()) echo "<pre>";
         foreach (Instagram::getAuthenticatedMembers() as $member) {
             echo "Import Istagram post for {$member->getName()}\n\n";
             if ($media = $this->instagram->getMemberMedia($member, null, $member->InstagramAccessToken)) {
@@ -84,7 +84,7 @@ class ImportMediaTasks extends BuildTask
                 }
             }
         }
-        if (!Director::is_cli()) echo "</pre>";
+        if (!\Director::is_cli()) echo "</pre>";
         exit('Done');
     }
 
