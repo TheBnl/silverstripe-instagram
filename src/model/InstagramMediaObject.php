@@ -1,11 +1,12 @@
 <?php
 
-namespace Broarm\Silverstripe\Instagram;
+namespace Broarm\Instagram;
 
-use Director;
-use Folder;
-use Image;
-use Member;
+use SilverStripe\Assets\Folder;
+use SilverStripe\Assets\Image;
+use SilverStripe\ORM\DataObject;
+use SilverStripe\Security\Member;
+use SilverStripe\Security\Security;
 
 /**
  * Class InstagramMediaObject
@@ -38,13 +39,15 @@ use Member;
  * @property string InstagramCaptionFromProfilePicture
  * @property string InstagramImageURL
  */
-class InstagramMediaObject extends Image {
+class InstagramMediaObject extends Image
+{
+    private static $table_name = 'InstagramMediaObject';
 
     private static $db = array(
         'Title' => 'Varchar(255)',
         'InstagramID' => 'Varchar(255)', // id
         'InstagramAttribution' => 'Varchar(255)', // attribution
-        'InstagramCreated' => 'SS_DateTime', // created_time
+        'InstagramCreated' => 'DBDatetime', // created_time
         'InstagramType' => 'Varchar(255)', // type
         'InstagramUserFullName' => 'Varchar(255)', // user full_name
         'InstagramUserID' => 'Varchar(255)', // user id
@@ -60,7 +63,7 @@ class InstagramMediaObject extends Image {
         'InstagramLocationID' => 'Varchar(255)', // location id
         'InstagramLocationName' => 'Varchar(255)', // location name
         'InstagramCaptionID' => 'Varchar(255)', // caption id
-        'InstagramCaptionCreated' => 'SS_DateTime', // caption created_time
+        'InstagramCaptionCreated' => 'DBDatetime', // caption created_time
         'InstagramCaptionText' => 'Varchar(255)', // caption text
         'InstagramCaptionFromFullName' => 'Varchar(255)', // caption from full_name
         'InstagramCaptionFromID' => 'Varchar(255)', // caption from id
@@ -71,7 +74,8 @@ class InstagramMediaObject extends Image {
 
     private static $default_sort = 'InstagramCreated DESC';
 
-    public function getCMSFields() {
+    public function getCMSFields()
+    {
         $fields = parent::getCMSFields();
         return $fields;
     }
@@ -80,11 +84,15 @@ class InstagramMediaObject extends Image {
     public function onBeforeWrite()
     {
         $this->Title = $this->InstagramCaptionText;
-        $this->Created = date('Y-m-d', $this->InstagramCreated);
+        $this->Created = $this->InstagramCreated;//date('Y-m-d', $this->InstagramCreated);
 
         // Download and set the image first time it's downloaded
         if (!$this->exists()) {
-            $this->setImage();
+            try {
+                $this->setImage();
+            } catch (\Exception $e) {
+                user_error($e, E_USER_ERROR);
+            }
         }
 
         parent::onBeforeWrite();
@@ -94,7 +102,7 @@ class InstagramMediaObject extends Image {
      * Find or make a facebook image
      *
      * @param $instagramId
-     * @return \DataObject|InstagramMediaObject
+     * @return DataObject|InstagramMediaObject
      */
     public static function find_or_make($instagramId)
     {
@@ -119,48 +127,21 @@ class InstagramMediaObject extends Image {
 
     /**
      * Set the image
+     * @throws \Exception
      */
     private function setImage()
     {
         $folder = Folder::find_or_make($this->uploadFolder());
         $imageSource = $this->InstagramImageURL;
         $sourcePath = pathinfo($imageSource);
-        $baseFolder = Director::baseFolder();
-        $relativeFilePath = $folder->Filename . explode('?', $sourcePath['basename'])[0];
-        $absoluteFilePath = "$baseFolder/$relativeFilePath";
-        
-        if (self::download_file($imageSource, $absoluteFilePath)) {
-            $this->setField('ParentID', $folder->ID);
-            $this->OwnerID = (Member::currentUser()) ? Member::currentUser()->ID : 0;
-            $this->setName($sourcePath['basename']);
-            $this->setFilename($relativeFilePath);
+        if ($stream = fopen($imageSource, 'r')) {
+            $this->setFromStream($stream, $sourcePath['basename']);
+            $this->ParentID =  $folder->ID;
+            if ($user = DataObject::get_one(Member::class, ['InstagramUserID' => $this->InstagramUserID])) {
+                $this->OwnerID = $user->ID;
+            }
         } else {
-            // Download error
-            // Todo: throw actual error
-        }
-    }
-
-
-    /**
-     * Download the file to the given path
-     *
-     * @param $url
-     * @param $path
-     * @return bool
-     */
-    private static function download_file($url, $path)
-    {
-        if (!file_exists($path)) {
-            $fp = fopen($path, 'w');
-            $ch = curl_init($url);
-            curl_setopt($ch, CURLOPT_FILE, $fp);
-            curl_exec($ch);
-            curl_close($ch);
-            fclose($fp);
-
-            return true;
-        } else {
-            return false;
+            throw new \Exception("Error while downloading file: $imageSource");
         }
     }
 }

@@ -1,10 +1,10 @@
 <?php
 
-namespace Broarm\Silverstripe\Instagram;
+namespace Broarm\Instagram;
 
-use Controller;
-use Director;
-use Member;
+use SilverStripe\Control\Controller;
+use SilverStripe\Control\Director;
+use SilverStripe\Security\Security;
 
 /**
  * Class CallbackController
@@ -13,11 +13,6 @@ use Member;
 class CallbackController extends Controller
 {
     private static $allowed_actions = array('authenticate');
-
-    public function init()
-    {
-        parent::init();
-    }
 
     /**
      * Authenticate the user with the Instagram API
@@ -28,7 +23,8 @@ class CallbackController extends Controller
         $error = $this->getRequest()->getVar('error');
         $error_reason = $this->getRequest()->getVar('error_reason');
         $error_description = $this->getRequest()->getVar('error_description');
-        $memberID = Member::currentUserID();
+        $member = Security::getCurrentUser();
+        $memberID = $member ? $member->ID : 0;
 
         if ($code) {
             $url = InstagramAuthenticator::API_OAUTH_TOKEN_URL;
@@ -58,23 +54,22 @@ class CallbackController extends Controller
             if (array_key_exists("error_message", $response)) {
                 $this->redirect(Director::absoluteURL("admin/settings/?authenticated=false&error_description=$error_description#Root_Instagram"));
             } else {
-                $member = Member::currentUser();
                 $member->setField('InstagramAccessToken', $response->access_token);
                 $member->setField('InstagramID', $response->user->id);
                 $member->setField('InstagramUserName', $response->user->username);
                 $member->setField('InstagramProfilePicture', $response->user->profile_picture);
                 $member->setField('InstagramFullName', $response->user->full_name);
-                $member->write();
-
-                $this->redirect(Director::absoluteURL("/admin/security/EditForm/field/Members/item/{$memberID}/edit?authenticated=true#Root_Instagram"));
+                try {
+                    $member->write();
+                    $this->redirect(Director::absoluteURL("/admin/security/EditForm/field/Members/item/{$memberID}/edit?authenticated=true#Root_Instagram"));
+                } catch (\Exception $e) {
+                    $this->redirect(Director::absoluteURL("/admin/security/EditForm/field/Members/item/{$memberID}/edit?authenticated=false&error=1&error_reason=write_error&error_description={$e->getMessage()}#Root_Instagram"));
+                }
             }
-
+        } elseif ($error) {
+            $this->redirect(Director::absoluteURL("/admin/security/EditForm/field/Members/item/{$memberID}/edit?authenticated=false&error=$error&error_reason=$error_reason&error_description=$error_description#Root_Instagram"));
         } else {
-            if ($error) {
-                $this->redirect(Director::absoluteURL("/admin/security/EditForm/field/Members/item/{$memberID}/edit?authenticated=false&error=$error&error_reason=$error_reason&error_description=$error_description#Root_Instagram"));
-            } else {
-                $this->redirect(Director::absoluteURL("/admin/security/EditForm/field/Members/item/{$memberID}/edit?authenticated=false"));
-            }
+            $this->redirect(Director::absoluteURL("/admin/security/EditForm/field/Members/item/{$memberID}/edit?authenticated=false"));
         }
     }
 }

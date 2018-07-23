@@ -1,8 +1,8 @@
 <?php
 
-namespace Broarm\Silverstripe\Instagram;
+namespace Broarm\Instagram;
 
-use LiteralField;
+use SilverStripe\Forms\LiteralField;
 
 /**
  * Class AuthButton
@@ -17,7 +17,7 @@ class AuthButton extends LiteralField
     {
         $label = _t('Instagram.AUTHENTICATE_LABEL', 'Authenticate Instagram');
         $authUrl = InstagramAuthenticator::getAuthenticationURL();
-        $button = "<a href='{$authUrl}' class='ss-ui-button ui-button'>{$label}</a>";
+        $button = "<a href='{$authUrl}' class='btn action btn-primary'>{$label}</a>";
         parent::__construct($name, $button);
     }
 

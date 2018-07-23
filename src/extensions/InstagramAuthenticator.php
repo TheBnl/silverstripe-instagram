@@ -1,13 +1,12 @@
 <?php
 
-namespace Broarm\Silverstripe\Instagram;
+namespace Broarm\Instagram;
 
-use DataExtension;
-use Director;
-use FieldList;
-use Member;
-use SiteConfig;
-use TextField;
+use SilverStripe\ORM\DataExtension;
+use SilverStripe\Control\Director;
+use SilverStripe\Forms\FieldList;
+use SilverStripe\SiteConfig\SiteConfig;
+use SilverStripe\Forms\TextField;
 
 /**
  * Class InstagramAuthenticator

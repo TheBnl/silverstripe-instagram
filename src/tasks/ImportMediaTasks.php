@@ -1,8 +1,11 @@
 <?php
 
-namespace Broarm\Silverstripe\Instagram;
+namespace Broarm\Instagram;
 
-use BuildTask;
+use SilverStripe\Control\Director;
+use SilverStripe\Dev\BuildTask;
+use SilverStripe\ORM\DataObject;
+use SilverStripe\Versioned\Versioned;
 
 /**
  * The facebook import images task
@@ -18,6 +21,7 @@ class ImportMediaTasks extends BuildTask
     protected $instagram;
 
     protected $enabled = true;
+    protected $cli = false;
 
     private static $data_mapping = array(
         'id' => 'InstagramID',
@@ -73,18 +77,19 @@ class ImportMediaTasks extends BuildTask
      */
     public function run($request)
     {
+        $this->cli = Director::is_cli();
         $this->instagram = new Instagram();
-        if (!\Director::is_cli()) echo "<pre>";
+        if (!$this->cli) echo "<pre>";
         foreach (Instagram::getAuthenticatedMembers() as $member) {
-            echo "Import Istagram post for {$member->getName()}\n\n";
-            if ($media = $this->instagram->getMemberMedia($member, null, $member->InstagramAccessToken)) {
+            echo "Import Instagram post for {$member->getName()}\n\n";
+            if ($media = $this->instagram->getMemberMedia($member)) {
                 foreach ($media as $mediaObject) {
                     $obj = self::handleObject($mediaObject->toMap());
                     echo "Created instagram media obj with ID {$obj->ID} from source {$obj->InstagramID} \n\n";
                 }
             }
         }
-        if (!\Director::is_cli()) echo "</pre>";
+        if (!$this->cli) echo "</pre>";
         exit('Done');
     }
 
@@ -93,7 +98,7 @@ class ImportMediaTasks extends BuildTask
      * Handle the image data
      *
      * @param array $data
-     * @return \DataObject|InstagramMediaObject
+     * @return DataObject|InstagramMediaObject
      */
     private static function handleObject(array $data) {
         // Find or make a facebook image object from the given facebook id
@@ -102,7 +107,13 @@ class ImportMediaTasks extends BuildTask
         // Loop over the data and set like the mapping
         self::loopMap($mediaObject, $data, self::config()->get('data_mapping'));
 
-        $mediaObject->write();
+        try {
+            $mediaObject->write();
+            $mediaObject->copyVersionToStage(Versioned::DRAFT, Versioned::LIVE);
+        } catch (\Exception $e) {
+            echo "[ERROR] {$e->getMessage()} \n";
+        }
+
         return $mediaObject;
     }
 
@@ -121,7 +132,7 @@ class ImportMediaTasks extends BuildTask
                 self::loopMap($mediaObject, $dataSet[$from], $to);
             } elseif (isset($dataSet[$from])) {
                 echo "Set $to => $dataSet[$from] \n";
-                $mediaObject->setField($to, $dataSet[$from]);
+                $mediaObject->setField((string)$to, $dataSet[$from]);
             }
         }
     }

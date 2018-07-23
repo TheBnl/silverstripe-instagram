@@ -9,14 +9,17 @@
 		margin: 0 0 4px 0;
 	}
 	.instagram-account-field__preview {
-		float: left;
 		padding-top: 8px;
 		margin: 0 30px 0 0;
 	}
 	.instagram-account-field__preview .message {
-		max-width:240px;
+		padding-top: 1.25rem;
+		max-width:170px;
 		color: #666;
 	}
+    .instagram-account-field__preview .message img {
+        width: 100%;
+    }
 	.instagram-account-field div.message p:last-child {
 		margin: 0;
 	}

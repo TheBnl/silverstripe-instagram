@@ -1,18 +1,21 @@
 <?php
 
-namespace Broarm\Silverstripe\Instagram;
+namespace Broarm\Instagram;
 
-use ArrayList;
-use Member;
-use Object;
-use RestfulService;
+use GuzzleHttp;
+use SilverStripe\Core\Config\Configurable;
+use SilverStripe\ORM\ArrayList;
+use SilverStripe\ORM\DataList;
+use SilverStripe\Security\Member;
 
 /**
  * Class Instagram
  * @package Broarm\Silverstripe\Instagram
  */
-class Instagram extends Object
+class Instagram
 {
+    use Configurable;
+
     const API_URL = 'https://api.instagram.com/v1/';
 
     const LIMIT = 20;
@@ -23,38 +26,45 @@ class Instagram extends Object
 
 
     /**
-     * Set up a connection with the Instagram API
-     *
-     * @param int $limit
-     * @param string $search
-     * @param string $token
-     * @return RestfulService
+     * @param $node
+     * @param null $limit
+     * @param null $search
+     * @param null $token
+     * @return mixed|\Psr\Http\Message\ResponseInterface
      */
-    private static function connection($limit = null, $search = null, $token = null)
+    private static function connection($node, $limit = null, $search = null, $token = null)
     {
-        $connection = new RestfulService(self::API_URL);
-
-        $query = array(
+        $client = new GuzzleHttp\Client();
+        $query = [
             'access_token' => $token ? $token : Instagram::getAuthenticatedMembers()->first()->getField('InstagramAccessToken'),
             'count' => $limit ? $limit : self::LIMIT
-        );
+        ];
 
         if ($search) {
             $query["q"] = $search;
         }
 
-        $connection->setQueryString($query);
-        return $connection;
+        try {
+            $res = $client->request('GET', self::API_URL . $node, [
+                'query' => $query
+            ]);
+
+            return $res;
+        } catch (GuzzleHttp\Exception\GuzzleException $e) {
+            user_error($e->getMessage(), E_USER_ERROR);
+        }
+
+        return null;
     }
 
 
     /**
      * Get a list of authenticated members
      *
-     * @return \DataList
+     * @return DataList
      */
     public static function getAuthenticatedMembers() {
-        return Member::get()->filter(array('InstagramAccessToken:not' => 'NULL'));
+        return Member::get()->filter(array('InstagramAccessToken:not' => null));
     }
 
 
@@ -68,8 +78,8 @@ class Instagram extends Object
      */
     public function get($node = null, $limit = null, $token = null)
     {
-        $connection = self::connection($limit, null, $token)->request($node);
-        if (($body = json_decode($connection->getBody(), true)) && isset($body["data"]) && !empty($body["data"])) {
+        $request = self::connection($node, $limit, null, $token);
+        if (($body = json_decode($request->getBody(), true)) && isset($body["data"]) && !empty($body["data"])) {
             return new ArrayList($body["data"]);
         }
 
@@ -100,9 +110,9 @@ class Instagram extends Object
      * @param string $token
      * @return ArrayList
      */
-    public function getMemberMedia(Member $member, $limit = null, $token = null)
+    public function getMemberMedia(Member $member, $limit = null)
     {
-        return $this->get("users/{$member->InstagramID}/media/recent/", $limit, $token);
+        return $this->get("users/{$member->InstagramID}/media/recent/", $limit, $member->InstagramAccessToken);
     }
 
 

@@ -1,10 +1,10 @@
 <?php
 
-namespace Broarm\Silverstripe\Instagram;
+namespace Broarm\Instagram;
 
-use DataExtension;
-use FieldList;
-use Member;
+use SilverStripe\ORM\DataExtension;
+use SilverStripe\Forms\FieldList;
+use SilverStripe\Security\Member;
 
 /**
  * Class MemberExtension

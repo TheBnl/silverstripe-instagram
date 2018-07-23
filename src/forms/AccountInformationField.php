@@ -1,9 +1,9 @@
 <?php
 
-namespace Broarm\Silverstripe\Instagram;
+namespace Broarm\Instagram;
 
-use LiteralField;
-use Member;
+use SilverStripe\Forms\LiteralField;
+use SilverStripe\Security\Member;
 
 /**
  * Class AccountInformationField
