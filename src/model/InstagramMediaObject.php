@@ -137,7 +137,7 @@ class InstagramMediaObject extends Image
         if ($stream = fopen($imageSource, 'r')) {
             $this->setFromStream($stream, $sourcePath['basename']);
             $this->ParentID =  $folder->ID;
-            if ($user = DataObject::get_one(Member::class, ['InstagramUserID' => $this->InstagramUserID])) {
+            if ($user = DataObject::get_one(Member::class, ['InstagramID' => $this->InstagramUserID])) {
                 $this->OwnerID = $user->ID;
             }
         } else {
