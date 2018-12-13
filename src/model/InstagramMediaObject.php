@@ -134,8 +134,9 @@ class InstagramMediaObject extends Image
         $folder = Folder::find_or_make($this->uploadFolder());
         $imageSource = $this->InstagramImageURL;
         $sourcePath = pathinfo($imageSource);
+        $fileName = explode('?',$sourcePath['basename'])[0];
         if ($stream = fopen($imageSource, 'r')) {
-            $this->setFromStream($stream, $sourcePath['basename']);
+            $this->setFromStream($stream, $fileName);
             $this->ParentID =  $folder->ID;
             if ($user = DataObject::get_one(Member::class, ['InstagramID' => $this->InstagramUserID])) {
                 $this->OwnerID = $user->ID;
