@@ -4,7 +4,10 @@ namespace Broarm\Instagram;
 
 use SilverStripe\Control\Controller;
 use SilverStripe\Control\Director;
+use SilverStripe\Control\HTTPRequest;
+use SilverStripe\ORM\DataObject;
 use SilverStripe\Security\Security;
+use SilverStripe\Security\Member;
 
 /**
  * Class CallbackController
@@ -12,8 +15,27 @@ use SilverStripe\Security\Security;
  */
 class CallbackController extends Controller
 {
-    private static $allowed_actions = array('authenticate');
+    private static $allowed_actions = array(
+        'authenticate',
+        'revoke'
+    );
 
+    public function revoke(HTTPRequest $request)
+    {
+        if ($member = DataObject::get_by_id(Member::class, $request->param('ID'))) {
+            $member->update([
+                'InstagramAccessToken' => null,
+                'InstagramID' => null,
+                'InstagramUserName' => null,
+                'InstagramProfilePicture' => null,
+                'InstagramFullName' => null
+            ]);
+            $member->write();
+        }
+
+        $this->redirectBack();
+    }
+    
     /**
      * Authenticate the user with the Instagram API
      */

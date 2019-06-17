@@ -35,7 +35,7 @@ class MemberExtension extends DataExtension
         } else {
             $fields->addFieldsToTab('Root.Instagram', array(
                 AccountInformationField::create('InstagramAccountInformation', $this->owner),
-                RevokeButton::create('InstagramRevokeButton')
+                RevokeButton::create('InstagramRevokeButton', $this->owner->ID)
             ));
         }
 
