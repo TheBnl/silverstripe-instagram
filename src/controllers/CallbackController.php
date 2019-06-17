@@ -2,9 +2,11 @@
 
 namespace Broarm\Instagram;
 
+use GuzzleHttp\Client;
 use SilverStripe\Control\Controller;
 use SilverStripe\Control\Director;
 use SilverStripe\Control\HTTPRequest;
+use SilverStripe\Core\Convert;
 use SilverStripe\ORM\DataObject;
 use SilverStripe\Security\Security;
 use SilverStripe\Security\Member;
@@ -49,45 +51,41 @@ class CallbackController extends Controller
         $memberID = $member ? $member->ID : 0;
 
         if ($code) {
-            $url = InstagramAuthenticator::API_OAUTH_TOKEN_URL;
-            $fields = array(
-                "client_id" => InstagramAuthenticator::getClientID(),
-                "client_secret" => InstagramAuthenticator::getClientSecret(),
-                "grant_type" => "authorization_code",
-                "redirect_uri" => urlencode(InstagramAuthenticator::getRedirectURL()),
-                "code" => $code
-            );
+            $client = new Client();
+            $request = $client->request('POST', InstagramAuthenticator::API_OAUTH_TOKEN_URL, [
+                'headers' => [
+                    'Content-Type' => 'application/x-www-form-urlencoded'
+                ],
+                'form_params' => [
+                    "client_id" => InstagramAuthenticator::getClientID(),
+                    "client_secret" => InstagramAuthenticator::getClientSecret(),
+                    "grant_type" => "authorization_code",
+                    "redirect_uri" => InstagramAuthenticator::getRedirectURL(),
+                    "code" => $code
+                ]
+            ]);
 
-            $fields_string = "";
-            foreach ($fields as $key => $value) {
-                $fields_string .= $key . '=' . $value . '&';
-            }
-            rtrim($fields_string, '&');
-
-            $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL, $url);
-            curl_setopt($ch, CURLOPT_POST, count($fields));
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-            curl_setopt($ch, CURLOPT_VERBOSE, 1);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $fields_string);
-            $response = json_decode(curl_exec($ch));
-            curl_close($ch);
-
-            if (array_key_exists("error_message", $response)) {
-                $this->redirect(Director::absoluteURL("admin/settings/?authenticated=false&error_description=$error_description#Root_Instagram"));
-            } else {
-                $member->setField('InstagramAccessToken', $response->access_token);
-                $member->setField('InstagramID', $response->user->id);
-                $member->setField('InstagramUserName', $response->user->username);
-                $member->setField('InstagramProfilePicture', $response->user->profile_picture);
-                $member->setField('InstagramFullName', $response->user->full_name);
-                try {
-                    $member->write();
-                    $this->redirect(Director::absoluteURL("/admin/security/EditForm/field/Members/item/{$memberID}/edit?authenticated=true#Root_Instagram"));
-                } catch (\Exception $e) {
-                    $this->redirect(Director::absoluteURL("/admin/security/EditForm/field/Members/item/{$memberID}/edit?authenticated=false&error=1&error_reason=write_error&error_description={$e->getMessage()}#Root_Instagram"));
+            if ($request->getBody()->isReadable()) {
+                $response = Convert::json2obj($request->getBody()->getContents());
+                if (array_key_exists("error_message", $response)) {
+                    $this->redirect(Director::absoluteURL("/admin/security/EditForm/field/Members/item/{$memberID}/edit?authenticated=false&error_description=$error_description#Root_Instagram"));
+                } else {
+                    $member->update([
+                        'InstagramAccessToken' => $response->access_token,
+                        'InstagramID' => $response->user->id,
+                        'InstagramUserName' => $response->user->username,
+                        'InstagramProfilePicture' => $response->user->profile_picture,
+                        'InstagramFullName' => $response->user->full_name
+                    ]);
+                    try {
+                        $member->write();
+                        $this->redirect(Director::absoluteURL("/admin/security/EditForm/field/Members/item/{$memberID}/edit?authenticated=true#Root_Instagram"));
+                    } catch (\Exception $e) {
+                        $this->redirect(Director::absoluteURL("/admin/security/EditForm/field/Members/item/{$memberID}/edit?authenticated=false&error=1&error_reason=write_error&error_description={$e->getMessage()}#Root_Instagram"));
+                    }
                 }
             }
+            
         } elseif ($error) {
             $this->redirect(Director::absoluteURL("/admin/security/EditForm/field/Members/item/{$memberID}/edit?authenticated=false&error=$error&error_reason=$error_reason&error_description=$error_description#Root_Instagram"));
         } else {
