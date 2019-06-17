@@ -108,8 +108,18 @@ class ImportMediaTasks extends BuildTask
         self::loopMap($mediaObject, $data, self::config()->get('data_mapping'));
 
         try {
-            $mediaObject->write();
-            $mediaObject->copyVersionToStage(Versioned::DRAFT, Versioned::LIVE);
+            if ($mediaObject->isChanged('InstagramImageURL', DataObject::CHANGE_VALUE)) {
+                $mediaObject->downloadImage();
+            }
+
+            if ($mediaObject->isChanged()) {
+                $mediaObject->write();
+                $mediaObject->generateThumbnails();
+            }
+
+            if (!$mediaObject->isLiveVersion()) {
+                $mediaObject->publishSingle();
+            }
         } catch (\Exception $e) {
             echo "[ERROR] {$e->getMessage()} \n";
         }

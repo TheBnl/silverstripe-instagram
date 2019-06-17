@@ -2,8 +2,14 @@
 
 namespace Broarm\Instagram;
 
+use GuzzleHttp\Client;
+use GuzzleHttp\Stream\GuzzleStreamWrapper;
 use SilverStripe\Assets\Folder;
 use SilverStripe\Assets\Image;
+use SilverStripe\Assets\Storage\AssetStore;
+use SilverStripe\AssetAdmin\Controller\AssetAdmin;
+use SilverStripe\AssetAdmin\Forms\UploadField;
+use SilverStripe\Core\Injector\Injector;
 use SilverStripe\ORM\DataObject;
 use SilverStripe\Security\Member;
 use SilverStripe\Security\Security;
@@ -83,19 +89,8 @@ class InstagramMediaObject extends Image
 
     public function onBeforeWrite()
     {
-        $this->Title = $this->InstagramCaptionText;
-        $this->Created = $this->InstagramCreated;//date('Y-m-d', $this->InstagramCreated);
-
-        // Download and set the image first time it's downloaded
-        if (!$this->exists()) {
-            try {
-                $this->setImage();
-            } catch (\Exception $e) {
-                user_error($e, E_USER_ERROR);
-            }
-        }
-
         parent::onBeforeWrite();
+        $this->Title = $this->InstagramCaptionText;
     }
 
     /**
@@ -106,11 +101,11 @@ class InstagramMediaObject extends Image
      */
     public static function find_or_make($instagramId)
     {
-        if ($image = InstagramMediaObject::get()->find('InstagramID', $instagramId)) {
-            return $image;
-        } else {
-            return InstagramMediaObject::create();
+        if (!$image = InstagramMediaObject::get()->find('InstagramID', $instagramId)) {
+            $image = InstagramMediaObject::create();
         }
+
+        return $image;
     }
 
 
@@ -124,25 +119,59 @@ class InstagramMediaObject extends Image
         return "instagram/{$this->InstagramUserID}";
     }
 
+    /**
+     * Find the owner ID
+     *
+     * @return int
+     */
+    public function findOwnerID()
+    {
+        if ($user = DataObject::get_one(Member::class, ['InstagramID' => $this->InstagramUserID])) {
+            return $user->ID;
+        } elseif ($user = Security::getCurrentUser()) {
+            return $user->ID;
+        } else {
+            return 0;
+        }
+    }
 
     /**
-     * Set the image
+     * Download the image
+     *
      * @throws \Exception
      */
-    private function setImage()
+    public function downloadImage()
     {
+        $client = new Client(['http_errors' => false]);
         $folder = Folder::find_or_make($this->uploadFolder());
         $imageSource = $this->InstagramImageURL;
         $sourcePath = pathinfo($imageSource);
-        $fileName = explode('?',$sourcePath['basename'])[0];
-        if ($stream = fopen($imageSource, 'r')) {
-            $this->setFromStream($stream, $fileName);
-            $this->ParentID =  $folder->ID;
-            if ($user = DataObject::get_one(Member::class, ['InstagramID' => $this->InstagramUserID])) {
-                $this->OwnerID = $user->ID;
-            }
+        $fileName = explode('?', $sourcePath['basename'])[0];
+        $request = $client->request('GET', $imageSource);
+        $stream = $request->getBody();
+
+        if ($stream->isReadable()) {
+            $this->setFromStream($stream->detach(), $fileName);
+            $this->ParentID = $folder->ID;
+            $this->OwnerID = $this->findOwnerID();
         } else {
             throw new \Exception("Error while downloading file: $imageSource");
         }
+    }
+
+    /**
+     * Generate thumbnails for use in the CMS
+     */
+    public function generateThumbnails()
+    {
+        $assetAdmin = AssetAdmin::singleton();
+        $this->FitMax(
+            $assetAdmin->config()->get('thumbnail_width'),
+            $assetAdmin->config()->get('thumbnail_height')
+        );
+        $this->FitMax(
+            UploadField::config()->uninherited('thumbnail_width'),
+            UploadField::config()->uninherited('thumbnail_height')
+        );
     }
 }
