@@ -4,6 +4,7 @@ namespace Broarm\Instagram;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Stream\GuzzleStreamWrapper;
+use SilverStripe\Assets\FileNameFilter;
 use SilverStripe\Assets\Folder;
 use SilverStripe\Assets\Image;
 use SilverStripe\Assets\Storage\AssetStore;
@@ -13,6 +14,7 @@ use SilverStripe\Core\Injector\Injector;
 use SilverStripe\ORM\DataObject;
 use SilverStripe\Security\Member;
 use SilverStripe\Security\Security;
+use SilverStripe\View\Parsers\URLSegmentFilter;
 
 /**
  * Class InstagramMediaObject
@@ -116,7 +118,9 @@ class InstagramMediaObject extends Image
      */
     private function uploadFolder()
     {
-        return "instagram/{$this->InstagramUserID}";
+        $filter = FileNameFilter::create();
+        $folder = $filter->filter($this->InstagramUserName);
+        return "instagram/{$folder}";
     }
 
     /**
