@@ -95,7 +95,7 @@ class InstagramAuthenticator extends DataExtension
      */
     public static function getAuthenticationURL()
     {
-        return self::API_OAUTH_URL . "?client_id=" . self::getClientID() . "&redirect_uri=" . urlencode(self::getRedirectURL()) . "&response_type=code&scope=public_content";
+        return self::API_OAUTH_URL . "?client_id=" . self::getClientID() . "&redirect_uri=" . urlencode(self::getRedirectURL()) . "&response_type=code";
     }
 
 
