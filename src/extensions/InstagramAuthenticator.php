@@ -25,8 +25,8 @@ class InstagramAuthenticator extends DataExtension
     const REDIRECT_PATH = '/instagram/authenticate';
 
     private static $db = array(
-        'ClientID' => 'Varchar(255)',
-        'ClientSecret' => 'Varchar(255)'
+        'InstagramClientID' => 'Varchar(255)',
+        'InstagramClientSecret' => 'Varchar(255)'
     );
 
     public function updateCMSFields(FieldList $fields)
@@ -70,7 +70,7 @@ class InstagramAuthenticator extends DataExtension
         $clientID = Instagram::config()->get('client_id');
         return isset($clientID)
             ? $clientID
-            : $siteConfig->getField("ClientID");
+            : $siteConfig->getField('InstagramClientID');
     }
 
     /**
@@ -84,7 +84,7 @@ class InstagramAuthenticator extends DataExtension
         $clientSecret = Instagram::config()->get("client_secret");
         return $clientSecret
             ? $clientSecret
-            : $siteConfig->getField("ClientSecret");
+            : $siteConfig->getField('InstagramClientSecret');
     }
 
 
