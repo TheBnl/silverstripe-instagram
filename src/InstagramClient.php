@@ -84,14 +84,27 @@ class InstagramClient
     /**
      * Exchange the short lived access token for a long lived access token
      *
-     * @param $accessToken
      * @return \Psr\Http\Message\ResponseInterface
      */
     public function getLongLivedAccessToken()
     {
         return $this->client->get('access_token', [
             'query' => [
-                'grant_type'=> 'ig_exchange_token',
+                'grant_type'=> 'ig_exchange_token'
+            ]
+        ]);
+    }
+
+    /**
+     * Refresh the in use access token
+     *
+     * @return \Psr\Http\Message\ResponseInterface
+     */
+    public function getRefreshLongLivedAcctionToken()
+    {
+        return $this->client->get('refresh_access_token', [
+            'query' => [
+                'grant_type'=> 'ig_refresh_token'
             ]
         ]);
     }

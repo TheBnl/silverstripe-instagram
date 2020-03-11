@@ -8,6 +8,8 @@ use Broarm\Instagram\Model\InstagramMediaObject;
 use SilverStripe\Control\Director;
 use SilverStripe\Dev\BuildTask;
 use SilverStripe\ORM\DataObject;
+use SilverStripe\ORM\FieldType\DBDatetime;
+use SilverStripe\Security\Member;
 use SilverStripe\Versioned\Versioned;
 
 /**
@@ -42,9 +44,19 @@ class ImportMediaTasks extends BuildTask
      */
     public function run($request)
     {
-        /** @var MemberExtension $member */
+        /** @var Member|MemberExtension $member */
         foreach (InstagramClient::getAuthenticatedMembers() as $member) {
             echo "Import Instagram post for {$member->getName()}\n\n";
+            $client = new InstagramClient($member->InstagramAccessToken);
+
+            // Refresh the access token
+            $tokenResponse = $client->getRefreshLongLivedAcctionToken();
+            $token = json_decode($tokenResponse->getBody()->getContents());
+
+            $member->InstagramAccessToken = $token->access_token;
+            $member->write();
+
+            // Initiate a new client with the fresh token
             $client = new InstagramClient($member->InstagramAccessToken);
             $response = $client->getUserMedia();
             $response = json_decode($response->getBody()->getContents());

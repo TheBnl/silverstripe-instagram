@@ -12,6 +12,7 @@ use SilverStripe\Forms\ReadonlyField;
 use SilverStripe\Forms\TextField;
 use SilverStripe\ORM\DataExtension;
 use SilverStripe\Forms\FieldList;
+use SilverStripe\ORM\FieldType\DBDatetime;
 use SilverStripe\Security\Member;
 use Broarm\Instagram\Forms\RevokeButton;
 use Broarm\Instagram\Forms\AccountInformationField;
@@ -77,7 +78,6 @@ class MemberExtension extends DataExtension
             ));
         }
     }
-
 
     public function onBeforeWrite()
     {
