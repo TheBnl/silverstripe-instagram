@@ -1,14 +1,15 @@
 # Silverstripe Instagram
 
-Add instagram api support to you website! Creates a tab in on the Member section where content authors can authenticate with your Instagram app.
+Add support for the [Instagram Basic Display API](https://developers.facebook.com/docs/instagram-basic-display-api) to your website.
+Creates a tab in on the Member section where content authors can authenticate with your Instagram app.
 The module contains a task that fetches the authenticated member's images form instagram.
 
 ![authenticate](screenshots/authenticate.png)
 
 ![authenticated](screenshots/authenticated.png)
 
-Some of the features are only available to non-sandbox clients.
-By default, sandbox mode will only return the last 20 media items from authenticated users. 
+You can also paste a token from your app on [developers.facebook.com](https://developers.facebook.com/) with the [User Token Generator](https://developers.facebook.com/docs/instagram-basic-display-api/overview#user-token-generator).
+That way you can easily set up a connection for a client, your client only needs to accept the invitation from your facebook app. 
 
 The default behaviour runs a task that checks media from authenticated users. This data gets stored in `InstagramMediaObject`'s. 
 The simplest way to get started would by by running the task either by cron or by hand and querying the `InstagramMediaObject`.
@@ -16,19 +17,16 @@ The simplest way to get started would by by running the task either by cron or b
 But you could also create your own tasks or, request the api directly, with the following methods.
 
 ```php
-$instagram = Instagram::create();
+$member = Security::getCurrentUser();
+$instagram = new \Broarm\Instagram\InstagramClient($member->InstagramAccessToken);
  
-// All the following request go trough this basic method.
-// You could do most of the available API requests with this method. 
-$instagram->get($node = null, $limit = null);
- 
-// Get the media of the current (authentiated) user
-$instagram->getCurrentUserMedia($limit = null);
- 
-// Get the media of a given "Silverstripe" member, only works if the member is authenticated
-// See ImportMediaTasks.php for a implementation 
-$instagram->getMemberMedia(Member $member, $limit = null)
- 
-// Get media by tag from the pool of authenticated members
-$instagram->getTaggedMedia($tagName, $limit = null)
+// Get the media from the user connected to the access token
+$instagram->getUserMedia();
+
+// Get the media for the given user id
+$instagram->getUserMedia($member->InstagramID); 
+
+// The above calls return a simple array with media id's 
+// Use this call to get the media for the given id
+$instagram->getMedia($id);
 ```

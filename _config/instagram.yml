@@ -3,15 +3,15 @@ Name: instagram
 ---
 SilverStripe\SiteConfig\SiteConfig:
   extensions:
-    - Broarm\Instagram\InstagramAuthenticator
+    - Broarm\Instagram\Extensions\SiteConfigExtension
 
 SilverStripe\Security\Member:
   extensions:
-    - Broarm\Instagram\MemberExtension
+    - Broarm\Instagram\Extensions\MemberExtension
 
 ---
 Name: instagram_routes
 ---
 SilverStripe\Control\Director:
   rules:
-    'instagram//$Action': Broarm\Instagram\CallbackController
+    'instagram//$Action': Broarm\Instagram\Controllers\CallbackController

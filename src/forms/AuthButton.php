@@ -1,24 +1,18 @@
 <?php
 
-namespace Broarm\Instagram;
+namespace Broarm\Instagram\Forms;
 
+use Broarm\Instagram\Instagram;
+use Broarm\Instagram\InstagramClient;
 use SilverStripe\Forms\LiteralField;
 
-/**
- * Class AuthButton
- * @package Broarm\Silverstripe\Instagram
- *
- * Todo: add revoke url
- */
 class AuthButton extends LiteralField
 {
-
     public function __construct($name)
     {
-        $label = _t('Instagram.AUTHENTICATE_LABEL', 'Authenticate Instagram');
-        $authUrl = InstagramAuthenticator::getAuthenticationURL();
+        $label = _t(__CLASS__ . '.Authenticate', 'Authenticate Instagram');
+        $authUrl = InstagramClient::getAuthenticationURL();
         $button = "<a href='{$authUrl}' class='btn action btn-primary'>{$label}</a>";
         parent::__construct($name, $button);
     }
-
 }

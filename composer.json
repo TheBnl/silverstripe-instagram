@@ -12,7 +12,9 @@
 		"silverstripe/framework": "^4.0",
 		"guzzlehttp/guzzle": "^6.3"
 	},
-	"extra": {
-		"installer-name": "instagram"
+	"autoload": {
+		"psr-4": {
+			"Broarm\\Instagram\\": "src"
+		}
 	}
 }
