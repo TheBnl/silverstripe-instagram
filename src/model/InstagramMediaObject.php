@@ -52,7 +52,6 @@ class InstagramMediaObject extends Image
         return $fields;
     }
 
-
     public function onBeforeWrite()
     {
         parent::onBeforeWrite();

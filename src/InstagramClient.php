@@ -3,6 +3,7 @@
 namespace Broarm\Instagram;
 
 use Broarm\Instagram\Controllers\CallbackController;
+use Broarm\Instagram\Tasks\ImportMediaTasks;
 use GuzzleHttp\Client;
 use GuzzleHttp\Handler\CurlHandler;
 use GuzzleHttp\HandlerStack;
@@ -57,7 +58,8 @@ class InstagramClient
     public function __construct($accessToken)
     {
         if (!$appSecret = self::getAppSecret()) {
-            throw new Exception('No app secret configured, set this in your config under Broarm\Instagram\InstagramClient.app_secret of in the DB trough site config');
+            ImportMediaTasks::log('No app secret configured, set this in your config under Broarm\Instagram\InstagramClient.app_secret of in the DB trough site config', 'error');
+            return;
         }
 
         $defaultQuery = [
