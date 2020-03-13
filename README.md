@@ -27,7 +27,7 @@ Broarm\Instagram\InstagramClient:
   app_secret: 'YOUR_APP_SECRET'
 ```
 
-Next authorize your user so you can read there feed. Each member can be connected to their own feed, so you can read the feed from multiple users.
+Next authorize your user so you can read their feed. Each member can be connected to their own feed, so you can read the feed from multiple users.
 Go to the Security admin and select the member you want to connect to instagram. 
 Here you hava a button to authenticate instagram, this will redirect to a Instagram authentication screen where the user can connect themselves (make sure you are loggen in with the account you want to connect).
 Or you have the option to paste a generated user token, after a save you should see the profile is connected.
