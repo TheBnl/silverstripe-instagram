@@ -4,8 +4,7 @@ After: 'framework/*', 'cms/*'
 ---
 SiteConfig:
   extensions:
-    - Broarm\Silverstripe\Instagram\InstagramAuthenticator
-
+    - Broarm\Silverstripe\Instagram\SiteConfigExtension
 Member:
   extensions:
     - Broarm\Silverstripe\Instagram\MemberExtension

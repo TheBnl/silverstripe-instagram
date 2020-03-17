@@ -9,7 +9,8 @@
 		"homepage": "http://broarm.nl"
 	}],
 	"require": {
-		"silverstripe/framework": "^3.1"
+		"silverstripe/framework": "^3.1",
+		"guzzlehttp/guzzle": "^6.3"
 	},
 	"extra": {
 		"installer-name": "instagram"
