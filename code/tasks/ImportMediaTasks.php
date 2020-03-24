@@ -20,7 +20,7 @@ class ImportMediaTasks extends BuildTask
 {
     protected $enabled = true;
 
-    private static $data_mapping = [
+    private static $data_mapping = array(
         'id' => 'InstagramID',
         'caption' => 'InstagramCaptionText',
         'media_type' => 'InstagramMediaType',
@@ -28,7 +28,7 @@ class ImportMediaTasks extends BuildTask
         'permalink' => 'InstagramLink',
         'timestamp' => 'InstagramCreated',
         'username' => 'InstagramUserName',
-    ];
+    );
 
     /**
      * @param SS_HTTPRequest $request
@@ -99,8 +99,13 @@ class ImportMediaTasks extends BuildTask
             if (is_array($to) && key_exists($from, $dataSet)) {
                 self::loopMap($mediaObject, $dataSet->$from, $to);
             } elseif (key_exists($from, $dataSet)) {
-                self::log("Set $to => {$dataSet->$from}");
-                $mediaObject->setField((string)$to, $dataSet->$from);
+                $value = $dataSet->$from;
+                if ($from === 'caption') {
+                    // Strip emojis since these are not supported by SS3
+                    $value = preg_replace("/[^A-Za-z0-9-_#. ]/", '', $value);
+                }
+                self::log("Set $to => {$value}");
+                $mediaObject->setField((string)$to, $value);
             }
         }
     }
