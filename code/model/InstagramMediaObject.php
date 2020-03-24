@@ -85,13 +85,20 @@ class InstagramMediaObject extends Image
         $imageSource = $this->InstagramImageURL;
         $sourcePath = pathinfo($imageSource);
         $baseFolder = Director::baseFolder();
-        $relativeFilePath = $folder->Filename . explode('?', $sourcePath['basename'])[0];
+        $fileName = explode('?', $sourcePath['basename'])[0];
+        $relativeFilePath = $folder->Filename . $fileName;
         $absoluteFilePath = "$baseFolder/$relativeFilePath";
+
+
+        print_r("\n\ndownload to file: \n");
+        print_r($absoluteFilePath);
+        print_r("\n === \n");
+
 
         if (self::download_file($imageSource, $absoluteFilePath)) {
             $this->setField('ParentID', $folder->ID);
             $this->OwnerID = (Member::currentUser()) ? Member::currentUser()->ID : 0;
-            $this->setName($sourcePath['basename']);
+            $this->setName($fileName);
             $this->setFilename($relativeFilePath);
         } else {
             // Download error
