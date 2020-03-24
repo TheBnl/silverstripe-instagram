@@ -81,10 +81,11 @@ class ImportMediaTasks extends BuildTask
         // Loop over the data and set like the mapping
         self::loopMap($mediaObject, $data, self::config()->get('data_mapping'));
 
-        try {
-            $mediaObject->write();
-        } catch (\Exception $e) {}
+        if ($mediaObject->isChanged('InstagramImageURL')) {
+            $mediaObject->setImage();
+        }
 
+        $mediaObject->write();
         return $mediaObject;
     }
 

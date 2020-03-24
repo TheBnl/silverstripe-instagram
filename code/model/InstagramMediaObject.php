@@ -38,14 +38,10 @@ class InstagramMediaObject extends Image
 
     private static $default_sort = 'InstagramCreated DESC';
 
-    public function onBeforeWrite()
+    protected function onBeforeWrite()
     {
         parent::onBeforeWrite();
         $this->Title = $this->InstagramCaptionText;
-
-        if ($this->isChanged('InstagramImageURL')) {
-            $this->setImage();
-        }
     }
 
     /**
@@ -79,7 +75,7 @@ class InstagramMediaObject extends Image
     /**
      * Set the image
      */
-    private function setImage()
+    public function setImage()
     {
         $folder = Folder::find_or_make($this->uploadFolder());
         $imageSource = $this->InstagramImageURL;
