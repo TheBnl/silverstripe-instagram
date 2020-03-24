@@ -81,8 +81,10 @@ class ImportMediaTasks extends BuildTask
         // Loop over the data and set like the mapping
         self::loopMap($mediaObject, $data, self::config()->get('data_mapping'));
 
-        $mediaObject->setImage();
-        $mediaObject->write();
+        try {
+            $mediaObject->write();
+        } catch (\Exception $e) {}
+
         return $mediaObject;
     }
 
@@ -95,11 +97,6 @@ class ImportMediaTasks extends BuildTask
      */
     private static function loopMap(InstagramMediaObject $mediaObject, $dataSet, $map)
     {
-
-        print_r("\n===\n");
-        print_r($dataSet);
-        print_r("\n===\n");
-
         foreach ($map as $from => $to) {
             if (is_array($to) && key_exists($from, $dataSet)) {
                 self::loopMap($mediaObject, $dataSet->$from, $to);

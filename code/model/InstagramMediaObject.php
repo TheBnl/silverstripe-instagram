@@ -89,12 +89,6 @@ class InstagramMediaObject extends Image
         $relativeFilePath = $folder->Filename . $fileName;
         $absoluteFilePath = "$baseFolder/$relativeFilePath";
 
-
-        print_r("\n\ndownload to file: \n");
-        print_r($absoluteFilePath);
-        print_r("\n === \n");
-
-
         if (self::download_file($imageSource, $absoluteFilePath)) {
             $this->setField('ParentID', $folder->ID);
             $this->OwnerID = (Member::currentUser()) ? Member::currentUser()->ID : 0;
