@@ -34,6 +34,7 @@ class ImportMediaTasks extends BuildTask
         'caption' => 'InstagramCaptionText',
         'media_type' => 'InstagramMediaType',
         'media_url' => 'InstagramImageURL',
+        'thumbnail_url' => 'InstagramImageURL',
         'permalink' => 'InstagramLink',
         'timestamp' => 'InstagramCreated',
         'username' => 'InstagramUserName',
@@ -65,9 +66,7 @@ class ImportMediaTasks extends BuildTask
 
             if (key_exists('data', $response)) {
                 foreach ($response->data as $mediaObject) {
-                    $mediaResponse = $client->getMedia($mediaObject->id);
-                    $mediaItem = json_decode($mediaResponse->getBody()->getContents());
-                    $obj = self::handleObject($mediaItem);
+                    $obj = self::handleObject($mediaObject);
                     self::log("Created instagram media obj with ID {$obj->ID} from source {$obj->InstagramID}");
                 }
             }

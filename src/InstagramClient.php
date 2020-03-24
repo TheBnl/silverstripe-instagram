@@ -134,7 +134,20 @@ class InstagramClient
      */
     public function getUserMedia($id = 'me')
     {
-        return $this->client->get("$id/media");
+        return $this->client->get("$id/media", [
+            'query' => [
+                'fields' => implode(',', [
+                    'caption',
+                    'id',
+                    'media_type',
+                    'media_url',
+                    'permalink',
+                    'thumbnail_url',
+                    'timestamp',
+                    'username',
+                ])
+            ]
+        ]);
     }
 
     public function getMedia($id)
