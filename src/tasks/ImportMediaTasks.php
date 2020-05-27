@@ -64,7 +64,7 @@ class ImportMediaTasks extends BuildTask
             $response = $client->getUserMedia();
             $response = json_decode($response->getBody()->getContents());
 
-            if (key_exists('data', $response)) {
+            if (property_exists($response, 'data')) {
                 foreach ($response->data as $mediaObject) {
                     $obj = self::handleObject($mediaObject);
                     self::log("Created instagram media obj with ID {$obj->ID} from source {$obj->InstagramID}");
@@ -119,9 +119,9 @@ class ImportMediaTasks extends BuildTask
     private static function loopMap(InstagramMediaObject $mediaObject, $dataSet, $map)
     {
         foreach ($map as $from => $to) {
-            if (is_array($to) && key_exists($from, $dataSet)) {
+            if (is_array($to) && property_exists($dataSet, $from)) {
                 self::loopMap($mediaObject, $dataSet->$from, $to);
-            } elseif (key_exists($from, $dataSet)) {
+            } elseif (property_exists($dataSet, $from)) {
                 self::log("Set $to => {$dataSet->$from}");
                 $mediaObject->setField((string)$to, $dataSet->$from);
             }

@@ -103,7 +103,7 @@ class CallbackController extends Controller
         }
 
         $response = json_decode($authResponse->getBody()->getContents());
-        if (!(key_exists('access_token', $response) && key_exists('user_id', $response))) {
+        if (!(property_exists($response, 'access_token') && property_exists($response, 'user_id'))) {
             // error, received no access tokoen
             return $this->redirectWithMessage('Could not receive token from auth response');
         }
@@ -128,7 +128,7 @@ class CallbackController extends Controller
         }
 
         $response = json_decode($response->getBody()->getContents());
-        if (!(key_exists('access_token', $response) && key_exists('expires_in', $response))) {
+        if (!(property_exists($response, 'access_token') && property_exists($response, 'expires_in'))) {
             return $this->redirectWithMessage('Could not read long lived access token from response');
         }
 
