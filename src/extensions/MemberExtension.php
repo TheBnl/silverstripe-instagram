@@ -82,13 +82,15 @@ class MemberExtension extends DataExtension
     public function onBeforeWrite()
     {
         // update user date here to also support set generated tokens
-        if ($this->owner->isChanged('InstagramAccessToken')) {
+        if ($this->owner->isChanged('InstagramAccessToken') && !empty($this->owner->InstagramAccessToken)) {
             try {
                 $client = new InstagramClient($this->owner->InstagramAccessToken);
                 $response = $client->getUser();
                 $user = json_decode($response->getBody()->getContents());
-                $this->owner->InstagramID = $user->id;
-                $this->owner->InstagramUserName = $user->username;
+                if (!empty($user)) {
+                    $this->owner->InstagramID = $user->id;
+                    $this->owner->InstagramUserName = $user->username;
+                }
             } catch (Exception $e) {
                 // soft error ?
             } catch (RequestException $e) {
