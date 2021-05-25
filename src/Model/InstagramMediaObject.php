@@ -81,7 +81,7 @@ class InstagramMediaObject extends Image
      */
     private function uploadFolder()
     {
-        $filter = FileNameFilter::create();
+        $filter = URLSegmentFilter::create();
         $folder = $filter->filter($this->InstagramUserName);
         return "instagram/{$folder}";
     }
