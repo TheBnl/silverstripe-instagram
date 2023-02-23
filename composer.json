@@ -9,8 +9,7 @@
 		"homepage": "http://broarm.nl"
 	}],
 	"require": {
-		"silverstripe/framework": "^4.0",
-		"guzzlehttp/guzzle": "^6.3"
+		"silverstripe/framework": "^4.0"
 	},
 	"autoload": {
 		"psr-4": {
