@@ -36,9 +36,9 @@ class InstagramMediaObject extends Image
     private static $db = array(
         'Title' => 'Varchar',
         'InstagramID' => 'Varchar', // id
-        'InstagramCaptionText' => 'Varchar', // caption
+        'InstagramCaptionText' => 'Varchar(2200)', // caption
         'InstagramMediaType' => 'Varchar', // media_type
-        'InstagramImageURL' => 'Varchar', // media_url
+        'InstagramImageURL' => 'Varchar(400)', // media_url
         'InstagramLink' => 'Varchar', // permalink
         'InstagramCreated' => 'Datetime', // timestamp
         'InstagramUserName' => 'Varchar', // username
