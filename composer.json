@@ -9,7 +9,7 @@
 		"homepage": "http://broarm.nl"
 	}],
 	"require": {
-		"silverstripe/framework": "^4.0"
+		"silverstripe/framework": "^4|^5"
 	},
 	"autoload": {
 		"psr-4": {
